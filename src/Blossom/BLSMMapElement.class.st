@@ -16,12 +16,30 @@ Class {
 		'synchronous',
 		'lastDragPosition',
 		'markers',
-		'attribution'
+		'attribution',
+		'transport'
 	],
 	#category : 'Blossom-UI',
 	#package : 'Blossom',
 	#tag : 'UI'
 }
+
+{ #category : 'examples' }
+BLSMMapElement class >> exampleHistoricalParis [
+	"Paris in 1750 from OpenHistoricalMap. Try: map year: 1900, map year: 2020, map year: nil"
+
+	<script>
+	| map space |
+	map := self on: (BLSMCoordinate lat: 48.8566 lon: 2.3522) zoom: 14.
+	map configuration: BLSMConfiguration openHistoricalMap.
+	map year: 1750.
+	space := BlSpace new.
+	space title: 'Blossom - OpenHistoricalMap'.
+	space extent: 800 @ 600.
+	space root addChild: map.
+	space show.
+	^ map
+]
 
 { #category : 'examples' }
 BLSMMapElement class >> exampleParisWithMarker [
@@ -90,9 +108,12 @@ BLSMMapElement >> centerOn: aCoordinate [
 { #category : 'accessing' }
 BLSMMapElement >> configuration: aConfiguration [
 
+	| tileProvider |
 	map maxZoom: aConfiguration maxZoom.
 	attribution text: (aConfiguration attribution asRopedText fontSize: 10).
-	self provider: (BLSMTileCache on: (BLSMHttpTileProvider configuration: aConfiguration))
+	tileProvider := aConfiguration newProvider.
+	transport ifNotNil: [ tileProvider transport: transport ].
+	self provider: (BLSMTileCache on: tileProvider)
 ]
 
 { #category : 'private' }
@@ -223,14 +244,14 @@ BLSMMapElement >> provider: aTileProvider [
 
 { #category : 'private' }
 BLSMMapElement >> refreshTiles [
+	"Tiles are placed on whole pixels so that no hairline gaps show between them"
 
 	| visible |
 	visible := Dictionary new.
 	map visibleTiles do: [ :each | visible at: each key put: each value ].
-	tileElements keys
-		reject: [ :id | visible includesKey: id ]
-		thenDo: [ :id | (tileElements removeKey: id) removeFromParent ].
-	visible keysAndValuesDo: [ :id :offset | (tileElements at: id ifAbsentPut: [ self newTileElementFor: id ]) position: offset ].
+	(tileElements keys reject: [ :id | visible includesKey: id ]) do: [ :id | (tileElements removeKey: id) removeFromParent ].
+	visible keysAndValuesDo: [ :id :offset |
+		(tileElements at: id ifAbsentPut: [ self newTileElementFor: id ]) position: offset rounded ].
 	self placeOverlays
 ]
 
@@ -257,6 +278,40 @@ BLSMMapElement >> synchronous: aBoolean [
 BLSMMapElement >> tileElements [
 
 	^ tileElements
+]
+
+{ #category : 'accessing' }
+BLSMMapElement >> transport: aBlock [
+	"Download block given to the providers this element builds (see BLSMHttpTileProvider>>transport:). Used by tests to avoid the network."
+
+	transport := aBlock
+]
+
+{ #category : 'accessing' }
+BLSMMapElement >> vectorProvider [
+	"The vector tile provider behind the cache, or nil for an image tile server"
+
+	| p |
+	p := self provider.
+	(p isKindOf: BLSMTileCache) ifTrue: [ p := p provider ].
+	^ (p isKindOf: BLSMVectorTileProvider)
+		  ifTrue: [ p ]
+		  ifFalse: [ nil ]
+]
+
+{ #category : 'accessing' }
+BLSMMapElement >> year [
+
+	^ self vectorProvider ifNotNil: [ :p | p year ]
+]
+
+{ #category : 'accessing' }
+BLSMMapElement >> year: aNumberOrNil [
+	"Show the map as it was at that year (vector tile servers such as OpenHistoricalMap only)"
+
+	self vectorProvider ifNotNil: [ :p |
+			p year: aNumberOrNil.
+			self provider: (BLSMTileCache on: p) ]
 ]
 
 { #category : 'navigation' }

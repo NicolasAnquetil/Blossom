@@ -39,17 +39,20 @@ BLSMHttpTileProvider >> configuration: aConfiguration [
 	configuration := aConfiguration
 ]
 
+{ #category : 'accessing' }
+BLSMHttpTileProvider >> fetchBytes: aTileId [
+
+	| result |
+	result := self transport value: (self requestFor: aTileId).
+	(result isKindOf: ZnResponse) ifFalse: [ ^ result ].
+	result isSuccess ifFalse: [ ^ self error: 'Tile download failed: ' , result statusLine printString ].
+	^ result contents
+]
+
 { #category : 'fetching' }
 BLSMHttpTileProvider >> formFor: aTileId [
 
-	| result bytes |
-	result := self transport value: (self requestFor: aTileId).
-	bytes := (result isKindOf: ZnResponse)
-		         ifTrue: [
-				         result isSuccess ifFalse: [ ^ self error: 'Tile download failed: ' , result statusLine printString ].
-				         result contents ]
-		         ifFalse: [ result ].
-	^ ImageReadWriter formFromStream: bytes readStream
+	^ ImageReadWriter formFromStream: (self fetchBytes: aTileId) readStream
 ]
 
 { #category : 'accessing' }

@@ -15,11 +15,12 @@ Class {
 		'accessToken',
 		'subdomains',
 		'attribution',
-		'maxZoom'
+		'maxZoom',
+		'isVector'
 	],
-	#category : 'Blossom-Network',
+	#category : 'Blossom-Core',
 	#package : 'Blossom',
-	#tag : 'Network'
+	#tag : 'Core'
 }
 
 { #category : 'presets' }
@@ -41,6 +42,16 @@ BLSMConfiguration class >> humanitarian [
 
 	^ (self urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png')
 		  attribution: '© OpenStreetMap contributors, tiles HOT / OSM France';
+		  yourself
+]
+
+{ #category : 'presets' }
+BLSMConfiguration class >> openHistoricalMap [
+	"Vector tiles: drawn locally by BLSMVectorTileProvider, filtered by year"
+
+	^ (self urlTemplate: 'https://vtiles.openhistoricalmap.org/maps/osm/{z}/{x}/{y}.pbf')
+		  attribution: '© OpenHistoricalMap contributors';
+		  beVector;
 		  yourself
 ]
 
@@ -77,6 +88,7 @@ BLSMConfiguration class >> presets [
 		  at: 'Humanitarian' put: self humanitarian;
 		  at: 'OpenTopoMap' put: self openTopoMap;
 		  at: 'CyclOSM' put: self cyclOSM;
+		  at: 'OpenHistoricalMap' put: self openHistoricalMap;
 		  yourself
 ]
 
@@ -124,6 +136,12 @@ BLSMConfiguration >> attribution: aString [
 	attribution := aString
 ]
 
+{ #category : 'accessing' }
+BLSMConfiguration >> beVector [
+
+	isVector := true
+]
+
 { #category : 'requests' }
 BLSMConfiguration >> headers [
 
@@ -132,6 +150,13 @@ BLSMConfiguration >> headers [
 	headers at: 'User-Agent' put: self userAgent.
 	accessToken ifNotNil: [ headers at: 'Authorization' put: 'Bearer ' , accessToken ].
 	^ headers
+]
+
+{ #category : 'accessing' }
+BLSMConfiguration >> isVector [
+	"True when the server sends Mapbox Vector Tiles instead of images"
+
+	^ isVector ifNil: [ false ]
 ]
 
 { #category : 'accessing' }
@@ -144,6 +169,14 @@ BLSMConfiguration >> maxZoom [
 BLSMConfiguration >> maxZoom: anInteger [
 
 	maxZoom := anInteger
+]
+
+{ #category : 'accessing' }
+BLSMConfiguration >> newProvider [
+
+	^ self isVector
+		  ifTrue: [ BLSMVectorTileProvider configuration: self ]
+		  ifFalse: [ BLSMHttpTileProvider configuration: self ]
 ]
 
 { #category : 'requests' }

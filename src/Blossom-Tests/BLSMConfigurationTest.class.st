@@ -72,6 +72,28 @@ BLSMConfigurationTest >> testHumanitarianPreset [
 ]
 
 { #category : 'tests' }
+BLSMConfigurationTest >> testNewProviderMatchesKind [
+
+	self assert: (BLSMConfiguration default newProvider isKindOf: BLSMHttpTileProvider).
+	self deny: (BLSMConfiguration default newProvider isKindOf: BLSMVectorTileProvider).
+	self assert: (BLSMConfiguration openHistoricalMap newProvider isKindOf: BLSMVectorTileProvider)
+]
+
+{ #category : 'tests' }
+BLSMConfigurationTest >> testOpenHistoricalMapPreset [
+
+	| conf |
+	conf := BLSMConfiguration openHistoricalMap.
+	self assert: conf isVector.
+	self deny: BLSMConfiguration default isVector.
+	self assert: (conf attribution includesSubstring: 'OpenHistoricalMap').
+	self
+		assert: (conf urlFor: (BLSMTileId x: 1 y: 2 zoom: 3)) asString
+		equals: 'https://vtiles.openhistoricalmap.org/maps/osm/3/1/2.pbf'.
+	self assert: (BLSMConfiguration presets includesKey: 'OpenHistoricalMap')
+]
+
+{ #category : 'tests' }
 BLSMConfigurationTest >> testOpenStreetMapFrancePreset [
 
 	self
@@ -94,7 +116,9 @@ BLSMConfigurationTest >> testPresetsCatalog [
 
 	| presets |
 	presets := BLSMConfiguration presets.
-	self assert: presets keys asSet equals: #( 'OpenStreetMap' 'OpenStreetMap France' 'Humanitarian' 'OpenTopoMap' 'CyclOSM' ) asSet.
+	self
+		assert: presets keys asSet
+		equals: #( 'OpenStreetMap' 'OpenStreetMap France' 'Humanitarian' 'OpenTopoMap' 'CyclOSM' 'OpenHistoricalMap' ) asSet.
 	presets valuesDo: [ :c | self assert: (c isKindOf: BLSMConfiguration) ]
 ]
 

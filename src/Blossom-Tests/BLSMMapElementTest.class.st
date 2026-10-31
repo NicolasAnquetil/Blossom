@@ -44,12 +44,20 @@ BLSMMapElementTest >> testChangingProviderReloadsTiles [
 { #category : 'tests' }
 BLSMMapElementTest >> testConfigurationUpdatesAttributionAndMaxZoom [
 
+	element transport: [ :request | BLSMHttpTileProviderTest new pngBytes ].
 	element configuration: BLSMConfiguration openTopoMap.
-	element
-		synchronous: true;
-		provider: fake.
 	self assert: ((element childWithId: #attribution) text asString includesSubstring: 'OpenTopoMap').
-	self assert: element map maxZoom equals: 17
+	self assert: element map maxZoom equals: 17.
+	self assert: (element tileElements values allSatisfy: [ :e | e background isKindOf: BlImageBackground ])
+]
+
+{ #category : 'tests' }
+BLSMMapElementTest >> testHistoricalConfigurationUsesVectorProvider [
+
+	self useHistoricalMap.
+	self assert: (element vectorProvider isKindOf: BLSMVectorTileProvider).
+	self assert: ((element childWithId: #attribution) text asString includesSubstring: 'OpenHistoricalMap').
+	self assert: (element tileElements values allSatisfy: [ :e | e background isKindOf: BlImageBackground ])
 ]
 
 { #category : 'tests' }
@@ -93,6 +101,12 @@ BLSMMapElementTest >> testPanMovesTiles [
 ]
 
 { #category : 'tests' }
+BLSMMapElementTest >> testRasterMapHasNoVectorProvider [
+
+	self assert: element vectorProvider isNil
+]
+
+{ #category : 'tests' }
 BLSMMapElementTest >> testTilesArePositioned [
 
 	| positions |
@@ -107,9 +121,28 @@ BLSMMapElementTest >> testTilesGetImageBackground [
 ]
 
 { #category : 'tests' }
+BLSMMapElementTest >> testYearReloadsTiles [
+
+	| before |
+	self useHistoricalMap.
+	before := element tileElements values asIdentitySet.
+	element year: 1800.
+	self assert: element year equals: 1800.
+	self assert: element vectorProvider year equals: 1800.
+	self assert: (element tileElements values noneSatisfy: [ :e | before includes: e ])
+]
+
+{ #category : 'tests' }
 BLSMMapElementTest >> testZoomInRefreshesTiles [
 
 	element zoomIn.
 	self assert: element map zoom equals: 1.
 	self assert: (element tileElements keys allSatisfy: [ :id | id zoom = 1 ])
+]
+
+{ #category : 'tests' }
+BLSMMapElementTest >> useHistoricalMap [
+
+	element transport: [ :request | BLSMVectorTileTest new parisFixture ].
+	element configuration: BLSMConfiguration openHistoricalMap
 ]
