@@ -12,17 +12,72 @@ Class {
 		'urlTemplate',
 		'userAgent',
 		'apiKey',
-		'accessToken'
+		'accessToken',
+		'subdomains',
+		'attribution',
+		'maxZoom'
 	],
 	#category : 'Blossom-Network',
 	#package : 'Blossom',
 	#tag : 'Network'
 }
 
-{ #category : 'instance creation' }
+{ #category : 'presets' }
+BLSMConfiguration class >> cyclOSM [
+
+	^ (self urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png')
+		  attribution: '© OpenStreetMap contributors, CyclOSM';
+		  yourself
+]
+
+{ #category : 'presets' }
 BLSMConfiguration class >> default [
 
+	^ self openStreetMap
+]
+
+{ #category : 'presets' }
+BLSMConfiguration class >> humanitarian [
+
+	^ (self urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png')
+		  attribution: '© OpenStreetMap contributors, tiles HOT / OSM France';
+		  yourself
+]
+
+{ #category : 'presets' }
+BLSMConfiguration class >> openStreetMap [
+
 	^ self urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+]
+
+{ #category : 'presets' }
+BLSMConfiguration class >> openStreetMapFrance [
+
+	^ (self urlTemplate: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png')
+		  attribution: '© OpenStreetMap contributors, tiles OSM France';
+		  yourself
+]
+
+{ #category : 'presets' }
+BLSMConfiguration class >> openTopoMap [
+
+	^ (self urlTemplate: 'https://tile.opentopomap.org/{z}/{x}/{y}.png')
+		  attribution: '© OpenStreetMap contributors, SRTM | style © OpenTopoMap (CC-BY-SA)';
+		  maxZoom: 17;
+		  yourself
+]
+
+{ #category : 'presets' }
+BLSMConfiguration class >> presets [
+	"Answer the ready-made configurations by display name"
+
+	^ OrderedDictionary new
+		  at: 'OpenStreetMap' put: self openStreetMap;
+		  at: 'OpenStreetMap France' put: self openStreetMapFrance;
+		  at: 'Humanitarian' put: self humanitarian;
+		  at: 'OpenTopoMap' put: self openTopoMap;
+		  at: 'CyclOSM' put: self cyclOSM;
+		  yourself
 ]
 
 { #category : 'instance creation' }
@@ -57,6 +112,18 @@ BLSMConfiguration >> apiKey: aString [
 	apiKey := aString
 ]
 
+{ #category : 'accessing' }
+BLSMConfiguration >> attribution [
+
+	^ attribution ifNil: [ '© OpenStreetMap contributors' ]
+]
+
+{ #category : 'accessing' }
+BLSMConfiguration >> attribution: aString [
+
+	attribution := aString
+]
+
 { #category : 'requests' }
 BLSMConfiguration >> headers [
 
@@ -67,12 +134,45 @@ BLSMConfiguration >> headers [
 	^ headers
 ]
 
+{ #category : 'accessing' }
+BLSMConfiguration >> maxZoom [
+
+	^ maxZoom ifNil: [ 19 ]
+]
+
+{ #category : 'accessing' }
+BLSMConfiguration >> maxZoom: anInteger [
+
+	maxZoom := anInteger
+]
+
+{ #category : 'requests' }
+BLSMConfiguration >> subdomainFor: aTileId [
+	"Stable choice per tile, spreading requests over the servers"
+
+	^ self subdomains at: aTileId x + aTileId y \\ self subdomains size + 1
+]
+
+{ #category : 'accessing' }
+BLSMConfiguration >> subdomains [
+
+	^ subdomains ifNil: [ #( 'a' 'b' 'c' ) ]
+]
+
+{ #category : 'accessing' }
+BLSMConfiguration >> subdomains: anArray [
+
+	subdomains := anArray
+]
+
 { #category : 'requests' }
 BLSMConfiguration >> urlFor: aTileId [
 
 	| tile url |
 	tile := aTileId wrapped.
-	url := (urlTemplate copyReplaceAll: '{z}' with: tile zoom printString) copyReplaceAll: '{x}' with: tile x printString.
+	url := urlTemplate copyReplaceAll: '{s}' with: (self subdomainFor: tile).
+	url := url copyReplaceAll: '{z}' with: tile zoom printString.
+	url := url copyReplaceAll: '{x}' with: tile x printString.
 	url := url copyReplaceAll: '{y}' with: tile y printString.
 	url := url asZnUrl.
 	apiKey ifNotNil: [ url := url withQuery: 'apikey' -> apiKey ].

@@ -39,6 +39,22 @@ BLSMMapElement class >> exampleParisWithMarker [
 	^ map
 ]
 
+{ #category : 'examples' }
+BLSMMapElement class >> exampleTopoMap [
+
+	<script>
+	| grenoble map space |
+	grenoble := BLSMCoordinate lat: 45.1885 lon: 5.7245.
+	map := self on: grenoble zoom: 12.
+	map configuration: BLSMConfiguration openTopoMap.
+	space := BlSpace new.
+	space title: 'Blossom - OpenTopoMap'.
+	space extent: 800 @ 600.
+	space root addChild: map.
+	space show.
+	^ map
+]
+
 { #category : 'instance creation' }
 BLSMMapElement class >> on: aCoordinate [
 
@@ -74,6 +90,8 @@ BLSMMapElement >> centerOn: aCoordinate [
 { #category : 'accessing' }
 BLSMMapElement >> configuration: aConfiguration [
 
+	map maxZoom: aConfiguration maxZoom.
+	attribution text: (aConfiguration attribution asRopedText fontSize: 10).
 	self provider: (BLSMTileCache on: (BLSMHttpTileProvider configuration: aConfiguration))
 ]
 
@@ -106,7 +124,7 @@ BLSMMapElement >> initializeAttribution [
 
 	attribution := BlTextElement new
 		               id: #attribution;
-		               text: ('(c) OpenStreetMap contributors' asRopedText fontSize: 10);
+		               text: (BLSMConfiguration default attribution asRopedText fontSize: 10);
 		               padding: (BlInsets all: 3);
 		               background: (Color white alpha: 0.7);
 		               yourself.

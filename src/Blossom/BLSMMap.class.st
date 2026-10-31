@@ -8,7 +8,8 @@ Class {
 		'center',
 		'zoom',
 		'extent',
-		'projection'
+		'projection',
+		'maxZoom'
 	],
 	#category : 'Blossom-Core',
 	#package : 'Blossom',
@@ -78,7 +79,14 @@ BLSMMap >> localPointOf: aCoordinate [
 { #category : 'accessing' }
 BLSMMap >> maxZoom [
 
-	^ 19
+	^ maxZoom ifNil: [ 19 ]
+]
+
+{ #category : 'accessing' }
+BLSMMap >> maxZoom: anInteger [
+
+	maxZoom := anInteger.
+	zoom ifNotNil: [ self zoom: zoom ]
 ]
 
 { #category : 'accessing' }

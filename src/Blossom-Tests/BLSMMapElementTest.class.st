@@ -42,6 +42,17 @@ BLSMMapElementTest >> testChangingProviderReloadsTiles [
 ]
 
 { #category : 'tests' }
+BLSMMapElementTest >> testConfigurationUpdatesAttributionAndMaxZoom [
+
+	element configuration: BLSMConfiguration openTopoMap.
+	element
+		synchronous: true;
+		provider: fake.
+	self assert: ((element childWithId: #attribution) text asString includesSubstring: 'OpenTopoMap').
+	self assert: element map maxZoom equals: 17
+]
+
+{ #category : 'tests' }
 BLSMMapElementTest >> testMapExtentFollowsElementSize [
 
 	self assert: element map extent equals: 512 @ 256

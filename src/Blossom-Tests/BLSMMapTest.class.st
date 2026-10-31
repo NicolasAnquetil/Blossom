@@ -41,6 +41,18 @@ BLSMMapTest >> testLocalPointOfCoordinate [
 ]
 
 { #category : 'tests' }
+BLSMMapTest >> testMaxZoomIsConfigurable [
+
+	| map |
+	map := BLSMMap center: self origin zoom: 16.
+	map maxZoom: 17.
+	map
+		zoomIn;
+		zoomIn.
+	self assert: map zoom equals: 17
+]
+
+{ #category : 'tests' }
 BLSMMapTest >> testPanMovesCenterOppositeToDrag [
 
 	| map |
