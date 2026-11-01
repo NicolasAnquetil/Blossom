@@ -91,8 +91,8 @@ BLSMMapTest >> testWideViewportRepeatsWorldHorizontally [
 	map := BLSMMap center: self origin zoom: 0.
 	map extent: 512 @ 256.
 	tiles := map visibleTiles.
-	self assert: (tiles collect: [ :a | a key x ] as: Array) equals: #( -1 0 1 ).
-	self assert: (tiles collect: [ :a | a value ] as: Array) equals: {
+	self assertCollection: (tiles collect: [ :a | a key x ]) hasSameElements: #( -1 0 1 ).
+	self assertCollection: (tiles collect: [ :a | a value ]) hasSameElements: {
 			(-128 @ 0).
 			(128 @ 0).
 			(384 @ 0) }
