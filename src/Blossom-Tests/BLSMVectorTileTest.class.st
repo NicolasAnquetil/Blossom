@@ -104,21 +104,6 @@ BLSMVectorTileTest >> testPolygonFeature [
 ]
 
 { #category : 'tests' }
-BLSMVectorTileTest >> testRealTileAttributes [
-
-	| tile place road |
-	tile := BLSMVectorTile fromBytes: self parisFixture.
-	place := (tile layerNamed: 'place_points_centroids') features first.
-	self assert: place isPoint.
-	self assert: (place at: 'name') equals: 'Place du Louvre'.
-	self assert: place geometry equals: { { (1088 @ 642) } }.
-	road := (tile layerNamed: 'transport_lines') features first.
-	self assert: (road at: 'name') equals: 'Rue de Grenelle'.
-	self assert: ((road at: 'start_decdate') - 1529.00137) abs < 1e-3.
-	self assert: (road at: 'end_decdate') isNil
-]
-
-{ #category : 'tests' }
 BLSMVectorTileTest >> testRealTileLayers [
 
 	| tile |
@@ -126,6 +111,28 @@ BLSMVectorTileTest >> testRealTileLayers [
 	self assert: tile layerNames size equals: 15.
 	self assert: (tile layerNames includes: 'transport_lines').
 	self assert: (tile layerNamed: 'transport_lines') features size equals: 2
+]
+
+{ #category : 'tests' }
+BLSMVectorTileTest >> testRealTileLineFeatureDates [
+
+	| tile road |
+	tile := BLSMVectorTile fromBytes: self parisFixture.
+	road := (tile layerNamed: 'transport_lines') features first.
+	self assert: (road at: 'name') equals: 'Rue de Grenelle'.
+	self assert: ((road at: 'start_decdate') - 1529.00137) abs < 1e-3.
+	self assert: (road at: 'end_decdate') isNil
+]
+
+{ #category : 'tests' }
+BLSMVectorTileTest >> testRealTilePointFeature [
+
+	| tile place |
+	tile := BLSMVectorTile fromBytes: self parisFixture.
+	place := (tile layerNamed: 'place_points_centroids') features first.
+	self assert: place isPoint.
+	self assert: (place at: 'name') equals: 'Place du Louvre'.
+	self assert: place geometry equals: { { (1088 @ 642) } }
 ]
 
 { #category : 'tests' }
