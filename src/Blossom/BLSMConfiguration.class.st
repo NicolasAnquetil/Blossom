@@ -62,14 +62,6 @@ BLSMConfiguration class >> openStreetMap [
 ]
 
 { #category : 'presets' }
-BLSMConfiguration class >> openStreetMapFrance [
-
-	^ (self urlTemplate: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png')
-		  attribution: '© OpenStreetMap contributors, tiles OSM France';
-		  yourself
-]
-
-{ #category : 'presets' }
 BLSMConfiguration class >> openTopoMap [
 
 	^ (self urlTemplate: 'https://tile.opentopomap.org/{z}/{x}/{y}.png')
@@ -84,7 +76,6 @@ BLSMConfiguration class >> presets [
 
 	^ OrderedDictionary new
 		  at: 'OpenStreetMap' put: self openStreetMap;
-		  at: 'OpenStreetMap France' put: self openStreetMapFrance;
 		  at: 'Humanitarian' put: self humanitarian;
 		  at: 'OpenTopoMap' put: self openTopoMap;
 		  at: 'CyclOSM' put: self cyclOSM;

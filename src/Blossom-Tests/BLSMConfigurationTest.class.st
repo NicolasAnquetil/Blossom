@@ -94,14 +94,6 @@ BLSMConfigurationTest >> testOpenHistoricalMapPreset [
 ]
 
 { #category : 'tests' }
-BLSMConfigurationTest >> testOpenStreetMapFrancePreset [
-
-	self
-		assert: (BLSMConfiguration openStreetMapFrance urlFor: (BLSMTileId x: 0 y: 0 zoom: 1)) asString
-		equals: 'https://a.tile.openstreetmap.fr/osmfr/1/0/0.png'
-]
-
-{ #category : 'tests' }
 BLSMConfigurationTest >> testOpenTopoMapPreset [
 
 	| conf |
@@ -118,7 +110,7 @@ BLSMConfigurationTest >> testPresetsCatalog [
 	presets := BLSMConfiguration presets.
 	self
 		assert: presets keys asSet
-		equals: #( 'OpenStreetMap' 'OpenStreetMap France' 'Humanitarian' 'OpenTopoMap' 'CyclOSM' 'OpenHistoricalMap' ) asSet.
+		equals: #( 'OpenStreetMap' 'Humanitarian' 'OpenTopoMap' 'CyclOSM' 'OpenHistoricalMap' ) asSet.
 	presets valuesDo: [ :c | self assert: (c isKindOf: BLSMConfiguration) ]
 ]
 
