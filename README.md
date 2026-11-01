@@ -31,3 +31,4 @@ space root addChild: map.
 space show.
 ```
 
+More in the [usage guide](doc/usage.md).
