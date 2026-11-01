@@ -11,7 +11,7 @@ BLSMVectorRendererTest >> assertColorOf: aForm at: aPoint is: aColor [
 
 	| c |
 	c := aForm colorAt: aPoint.
-	self assert: (c red - aColor red) abs + (c green - aColor green) abs + (c blue - aColor blue) abs < 0.05
+	self assert: (c diff: aColor)  < 0.001
 ]
 
 { #category : 'tests' }
