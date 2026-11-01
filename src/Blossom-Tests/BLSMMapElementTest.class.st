@@ -117,7 +117,9 @@ BLSMMapElementTest >> testTilesArePositioned [
 { #category : 'tests' }
 BLSMMapElementTest >> testTilesGetImageBackground [
 
-	element tileElements valuesDo: [ :e | self assert: (e background isKindOf: BlImageBackground) ]
+	self assert: element tileElements isNotEmpty.
+	element tileElements valuesDo: [ :e |
+		self assert: (e background isKindOf: BlImageBackground) ]
 ]
 
 { #category : 'tests' }
