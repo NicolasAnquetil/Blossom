@@ -7,9 +7,21 @@ Class {
 }
 
 { #category : 'tests' }
+BLSMMapTest >> assertPoint: aPoint closeTo: anotherPoint [
+
+	self assert: (aPoint distanceTo: anotherPoint) < 1e-6
+]
+
+{ #category : 'tests' }
 BLSMMapTest >> origin [
 
 	^ BLSMCoordinate lat: 0 lon: 0
+]
+
+{ #category : 'tests' }
+BLSMMapTest >> paris [
+
+	^ BLSMCoordinate lat: 48.8566 lon: 2.3522
 ]
 
 { #category : 'tests' }
@@ -99,6 +111,41 @@ BLSMMapTest >> testWideViewportRepeatsWorldHorizontally [
 ]
 
 { #category : 'tests' }
+BLSMMapTest >> testZoomAroundAtMaxZoomDoesNotMove [
+
+	| map |
+	map := BLSMMap center: self paris zoom: 19.
+	map extent: 512 @ 256.
+	map zoomInAround: 10 @ 10.
+	self assert: map zoom equals: 19.
+	self assert: map center equals: self paris
+]
+
+{ #category : 'tests' }
+BLSMMapTest >> testZoomAroundViewportCenterKeepsCenter [
+
+	| map |
+	map := BLSMMap center: self paris zoom: 10.
+	map extent: 512 @ 256.
+	map zoomInAround: 256 @ 128.
+	self assert: (map center latitude - self paris latitude) abs < 1e-9.
+	self assert: (map center longitude - self paris longitude) abs < 1e-9
+]
+
+{ #category : 'tests' }
+BLSMMapTest >> testZoomInAroundKeepsPointUnderCursor [
+
+	| map cursor coordinate |
+	map := BLSMMap center: self paris zoom: 10.
+	map extent: 512 @ 256.
+	cursor := 100 @ 50.
+	coordinate := map coordinateAt: cursor.
+	map zoomInAround: cursor.
+	self assert: map zoom equals: 11.
+	self assertPoint: (map localPointOf: coordinate) closeTo: cursor
+]
+
+{ #category : 'tests' }
 BLSMMapTest >> testZoomIsClamped [
 
 	| map |
@@ -111,4 +158,17 @@ BLSMMapTest >> testZoomIsClamped [
 	self assert: map zoom equals: 0.
 	map zoomIn.
 	self assert: map zoom equals: 1
+]
+
+{ #category : 'tests' }
+BLSMMapTest >> testZoomOutAroundKeepsPointUnderCursor [
+
+	| map cursor coordinate |
+	map := BLSMMap center: self paris zoom: 10.
+	map extent: 512 @ 256.
+	cursor := 400 @ 200.
+	coordinate := map coordinateAt: cursor.
+	map zoomOutAround: cursor.
+	self assert: map zoom equals: 9.
+	self assertPoint: (map localPointOf: coordinate) closeTo: cursor
 ]

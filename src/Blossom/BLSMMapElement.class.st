@@ -163,8 +163,8 @@ BLSMMapElement >> initializeInteractions [
 			lastDragPosition := e position ].
 	self addEventHandlerOn: BlDragEndEvent do: [ :e | lastDragPosition := nil ].
 	self addEventHandlerOn: BlMouseWheelEvent do: [ :e |
-			e isScrollUp ifTrue: [ self zoomIn ].
-			e isScrollDown ifTrue: [ self zoomOut ] ]
+			e isScrollUp ifTrue: [ self zoomInAround: e localPosition ].
+			e isScrollDown ifTrue: [ self zoomOutAround: e localPosition ] ]
 ]
 
 { #category : 'private' }
@@ -329,8 +329,22 @@ BLSMMapElement >> zoomIn [
 ]
 
 { #category : 'navigation' }
+BLSMMapElement >> zoomInAround: aLocalPoint [
+
+	map zoomInAround: aLocalPoint.
+	self refreshTiles
+]
+
+{ #category : 'navigation' }
 BLSMMapElement >> zoomOut [
 
 	map zoomOut.
+	self refreshTiles
+]
+
+{ #category : 'navigation' }
+BLSMMapElement >> zoomOutAround: aLocalPoint [
+
+	map zoomOutAround: aLocalPoint.
 	self refreshTiles
 ]

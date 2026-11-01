@@ -123,6 +123,30 @@ BLSMMapElementTest >> testTilesGetImageBackground [
 ]
 
 { #category : 'tests' }
+BLSMMapElementTest >> testWheelDownZoomsOutAroundCursor [
+
+	| cursor coordinate |
+	element map zoom: 5.
+	cursor := 400 @ 200.
+	coordinate := element map coordinateAt: cursor.
+	self wheel: -1 at: cursor.
+	self assert: element map zoom equals: 4.
+	self assert: ((element map localPointOf: coordinate) distanceTo: cursor) < 1e-6
+]
+
+{ #category : 'tests' }
+BLSMMapElementTest >> testWheelUpZoomsInAroundCursor [
+
+	| cursor coordinate |
+	element map zoom: 5.
+	cursor := 100 @ 60.
+	coordinate := element map coordinateAt: cursor.
+	self wheel: 1 at: cursor.
+	self assert: element map zoom equals: 6.
+	self assert: ((element map localPointOf: coordinate) distanceTo: cursor) < 1e-6
+]
+
+{ #category : 'tests' }
 BLSMMapElementTest >> testYearReloadsTiles [
 
 	| before |
@@ -147,4 +171,14 @@ BLSMMapElementTest >> useHistoricalMap [
 
 	element transport: [ :request | BLSMVectorTileTest new parisFixture ].
 	element configuration: BLSMConfiguration openHistoricalMap
+]
+
+{ #category : 'tests' }
+BLSMMapElementTest >> wheel: aVerticalDirection at: aLocalPoint [
+	"Simulate a mouse wheel event over the element"
+
+	element dispatchEvent: (BlMouseWheelEvent new
+			 position: (element localPointToGlobal: aLocalPoint);
+			 vector: (BlVector x: 0 y: aVerticalDirection);
+			 yourself)
 ]

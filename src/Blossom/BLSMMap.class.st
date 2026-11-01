@@ -152,13 +152,38 @@ BLSMMap >> zoom: anInteger [
 ]
 
 { #category : 'navigation' }
+BLSMMap >> zoomBy: aDelta around: aLocalPoint [
+	"Change the zoom by aDelta levels, keeping the coordinate under aLocalPoint at the same place in the viewport"
+
+	| anchor oldZoom newCenterPixel |
+	anchor := self coordinateAt: aLocalPoint.
+	oldZoom := zoom.
+	self zoom: zoom + aDelta.
+	zoom = oldZoom ifTrue: [ ^ self ].
+	newCenterPixel := (self projection pixelFor: anchor zoom: zoom) - aLocalPoint + (self extent / 2).
+	center := self coordinateForGlobalPixel: newCenterPixel
+]
+
+{ #category : 'navigation' }
 BLSMMap >> zoomIn [
 
 	self zoom: zoom + 1
 ]
 
 { #category : 'navigation' }
+BLSMMap >> zoomInAround: aLocalPoint [
+
+	self zoomBy: 1 around: aLocalPoint
+]
+
+{ #category : 'navigation' }
 BLSMMap >> zoomOut [
 
 	self zoom: zoom - 1
+]
+
+{ #category : 'navigation' }
+BLSMMap >> zoomOutAround: aLocalPoint [
+
+	self zoomBy: -1 around: aLocalPoint
 ]
