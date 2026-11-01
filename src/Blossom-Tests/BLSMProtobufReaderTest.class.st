@@ -22,10 +22,9 @@ BLSMProtobufReaderTest >> fieldsOf: aByteArray [
 { #category : 'tests' }
 BLSMProtobufReaderTest >> testFixed32 [
 
-	self assert: (self fieldsOf: #[ 16r25 1 2 3 4 ]) equals: { {
-			4.
-			5.
-			#[ 1 2 3 4 ] } }
+	self
+		assert: (self fieldsOf: #[ 16r25 1 2 3 4 ])
+		equals: { { 4 . 5 . #[1 2 3 4] } }
 ]
 
 { #category : 'tests' }
@@ -38,10 +37,9 @@ BLSMProtobufReaderTest >> testFloatAndDouble [
 { #category : 'tests' }
 BLSMProtobufReaderTest >> testLengthDelimited [
 
-	self assert: (self fieldsOf: #[ 16r1A 3 97 98 99 ]) equals: { {
-			3.
-			2.
-			#[ 97 98 99 ] } }
+	self
+		assert: (self fieldsOf: #[ 16r1A 3 97 98 99 ])
+		equals: { { 3 . 2 . #[97 98 99] } }
 ]
 
 { #category : 'tests' }
