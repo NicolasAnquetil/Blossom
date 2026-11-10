@@ -3,6 +3,10 @@ Blossom is an OpenStreetMap client for Pharo using the Bloc UI.
 
 It was inspired by [https://github.com/fstephany/OSMMaps](https://github.com/fstephany/OSMMaps) and realized by Claude Code.
 
+
+<img width="819" height="597" alt="OpenStreetMap-PharoClient" src="https://github.com/user-attachments/assets/b7e3f979-549f-4fa5-939a-589093d2d88a" />
+
+
 ## Installation
 
 ```smalltalk
